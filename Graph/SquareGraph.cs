@@ -6,24 +6,45 @@ namespace Graph
 {
     public class SquareGraph : AbstractGraph
     {
+        /// <summary>
+        /// The two-dimensional grid that sits on top of the more abstract graph.
+        /// </summary>
         public Vertex[,] Grid { get; private set; }
 
-        public int MaxWidth = 1024;
-        public int MaxHeight = 768;
-
+        /// <summary>
+        /// Height of the graph. The 'y' value.
+        /// </summary>
         public int Width { get; private set; }
+        /// <summary>
+        /// Width of the graph. The 'x' value.
+        /// </summary>
         public int Height { get; private set; }
 
+        /// <summary>
+        /// Does the graph wrap around from left to right?
+        /// </summary>
         public bool WrapAround { get; private set; }
+        /// <summary>
+        /// Does the graph permit traversal in a diagonal direction?
+        /// </summary>
         public bool UseDiagonals { get; private set; }
 
         private readonly Dictionary<Vertex, Tuple<int, int>> _tupleDictionary = new Dictionary<Vertex, Tuple<int, int>>();
         private Dictionary<Vertex, Vertex> _cameFromDictionary; 
 
+        /// <summary>
+        /// SquareGraph constructor.
+        /// </summary>
+        /// <param name="width">Width of the graph. The 'x' value.</param>
+        /// <param name="height">Height of the graph. The 'y' value.</param>
+        /// <param name="wrapAround">Does the graph wrap around from left to right? Default is false.</param>
+        /// <param name="useDiagonals">Does the graph permit traversal in a diagonal direction? Default is false.</param>
         public SquareGraph(int width, int height, bool wrapAround = false, bool useDiagonals = false)
         {
-            if (width > MaxWidth || width < 1)
-                throw new InvalidOperationException();
+            if (width < 1)
+                throw new InvalidOperationException("Width must be positive");
+            if (height < 1)
+                throw new InvalidOperationException("Height must be positive");
 
             Width = width;
             Height = height;
@@ -33,13 +54,16 @@ namespace Graph
             UseDiagonals = useDiagonals;
         }
 
+        /// <summary>
+        /// Initializes the graph.
+        /// </summary>
         public override void Initialize()
         {
             for (var y = 0; y < Height; y++)
             {
                 for (var x = 0; x < Width; x++)
                 {
-                    var vertex = new Vertex();
+                    var vertex = new Vertex(this);
                     Grid[y, x] = vertex;
                     Add(vertex);
                     _tupleDictionary.Add(Grid[y,x], new Tuple<int, int>(y, x));
@@ -102,6 +126,12 @@ namespace Graph
             }
         }
 
+        /// <summary>
+        /// Shortest path based on A*, modified to return the shortest past.
+        /// </summary>
+        /// <param name="source">The point where the search should begin.</param>
+        /// <param name="destination">The desired endpoint of the search.</param>
+        /// <returns>Returns a list of vertices that make the shortest path from the source to destination, or null if no path can be found.</returns>
         public override List<Vertex> ShortestPath(Vertex source, Vertex destination)
         {
             if (!Vertices.Contains(source))
@@ -150,11 +180,16 @@ namespace Graph
             var sourceCoordinates = GetCoordinates(source);
             var targetCoordinates = GetCoordinates(target);
 
-            return 10 * 0.001 *
+            return 0.01 *
                 Math.Abs(sourceCoordinates.Item1 * targetCoordinates.Item2 -
                          targetCoordinates.Item1 * sourceCoordinates.Item2);
         }
 
+        /// <summary>
+        /// Returns the y,x coordinates of a given vertex.
+        /// </summary>
+        /// <param name="vertex">The vertex to return coordinates for.</param>
+        /// <returns>A tuple containing the y,x coordinates of the vertex.</returns>
         public Tuple<int, int> GetCoordinates(Vertex vertex)
         {
             if (!Vertices.Contains(vertex))

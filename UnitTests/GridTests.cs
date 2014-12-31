@@ -18,22 +18,19 @@ namespace UnitTests
         public void SimpleGraphPathTesting()
         {
             var graph = new SimpleGraph();
-            for (var x = 0; x < 100; x++)
-                graph.Add(new Vertex());
-            var vertices = graph.Vertices.ToList();
-            var rand = new Random((int) DateTime.Now.Ticks);
-            for (var x = 0; x < 1000; x++)
+            for (var i = 0; i < 10; i++)
             {
-                var vertex1 = vertices[rand.Next(0, 99)];
-                var vertex2 = vertices[rand.Next(0, 99)];
-                if (vertex1 == vertex2 || vertex1.HasNeighbor(vertex2))
-                    continue;
-                var edge = graph.Connect(vertex1, vertex2);
-                edge.Weight = rand.Next(1, 5);
+                graph.Add(new Vertex(graph));
+            }
+            var verticesList = graph.Vertices.ToList();
+            for (var i = 0; i < graph.Vertices.Count - 1; i++)
+            {
+                // straight line with weight = 1 per edge
+                graph.Connect(verticesList[i], verticesList[i + 1]);
             }
 
-            var source = vertices[rand.Next(0, 99)];
-            var destination = vertices[rand.Next(0, 99)];
+            var source = graph.Vertices.First(x => x.Edges.Count == 1);
+            var destination = graph.Vertices.First(x => x.Edges.Count == 1 && x != source);
             var path = graph.ShortestPath(source, destination);
         }
 

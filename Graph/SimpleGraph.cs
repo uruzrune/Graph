@@ -10,42 +10,48 @@ namespace Graph
         {
         }
 
+        /// <summary>
+        /// A shortest-path algorithm based on Bellman-Ford, modified to return a shortest-list path.
+        /// </summary>
+        /// <param name="source">The point where the search should begin.</param>
+        /// <param name="destination">The desired endpoint of the search.</param>
+        /// <returns>Returns a list of vertices that make the shortest path from the source to destination, or null if no path can be found.</returns>
         public override List<Vertex> ShortestPath(Vertex source, Vertex destination)
         {
-            var distances = new Dictionary<Vertex, int>();
-            var previous = new Dictionary<Vertex, Vertex>();
-            var queue = new PriorityQueue<int, Vertex>();
+            var distances = Vertices.Where(x => x != source).ToDictionary(vertex => vertex, vertex => Int32.MaxValue);
             distances.Add(source, 0);
-            foreach (var vertex in Vertices)
-            {
-                if (vertex != source)
-                    distances.Add(vertex, Vertices.Count * Edges.Count + 1);
-                queue.Enqueue(1, vertex);
-            }
+            var previous = new Dictionary<Vertex, Vertex>();
+            var queue = new Queue<Vertex>();
+            queue.Enqueue(source);
             while (queue.Any())
             {
-                var vertex = queue.DequeueValue();
-                if (vertex == destination)
+                var workingVertex = queue.Dequeue();
+                if (workingVertex == destination)
                 {
-                    var sequence = new List<Vertex>();
-                    var element = destination;
-                    while (previous.ContainsKey(element))
+                    var currentVertex = destination;
+                    var resultList = new List<Vertex>();
+                    while (currentVertex != null)
                     {
-                        sequence.Add(element);
-                        element = previous[element];
+                        resultList.Add(currentVertex);
+                        currentVertex = previous.ContainsKey(currentVertex) ? previous[currentVertex] : null;
                     }
-                    if (sequence.Any())
-                        sequence.Add(source);
-                    sequence.Reverse();
-                    return sequence;
+                    resultList.Reverse();
+                    return resultList;
                 }
-                foreach (var neighbor in vertex.Neighbors)
+                foreach (var edge in workingVertex.Edges)
                 {
-                    var alt = distances[vertex] + vertex.Edges.First(x => x.HasVertex(neighbor)).Weight;
-                    if (alt < distances[neighbor])
+                    var neighbor = edge.Vertices.First(x => x != workingVertex);
+                    var newDistance =
+                        distances[workingVertex] != Int32.MaxValue
+                            ? distances[workingVertex] + edge.Weight
+                            : Int32.MaxValue;
+
+                    if (newDistance < distances[neighbor])
                     {
-                        distances[neighbor] = alt;
-                        previous[neighbor] = vertex;
+                        distances[neighbor] = newDistance;
+                        if (!queue.Contains(neighbor))
+                            queue.Enqueue(neighbor);
+                        previous[neighbor] = workingVertex;
                     }
                 }
             }
