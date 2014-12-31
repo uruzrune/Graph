@@ -1,7 +1,7 @@
 Graph
 =====
 
-A simple graph class with adjacency lists and shortest past via Dijkstra's algorithm.
+A simple graph class with adjacency lists and shortest past via Dijkstra's algorithm and A*.
 
 There are likely libraries out there that accomplish far more than what is contained in this simple library. This was simply an academic exercise with the hopes that this code would be useful to someone, somewhere.
 
