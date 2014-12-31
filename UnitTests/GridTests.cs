@@ -9,24 +9,46 @@ namespace UnitTests
 {
     class GridTests
     {
-        private SquareGraph _graph;
-
         [SetUp]
         public void SetUp()
         {
-            _graph = new SquareGraph(5, 5, true, true);
-            _graph.Initialize();
         }
 
         [Test]
-        public void PathTesting()
+        public void SimpleGraphPathTesting()
         {
-            Assert.IsTrue(_graph.Grid[0,0].HasNeighbor(_graph.Grid[1,0]));
-            Assert.IsTrue(_graph.Grid[0, 0].HasNeighbor(_graph.Grid[0, 1]));
-            Assert.IsTrue(_graph.Grid[0, 0].HasNeighbor(_graph.Grid[1, 1]));
-            Assert.IsTrue(_graph.Grid[0, 0].HasNeighbor(_graph.Grid[0, 4]));
+            var graph = new SimpleGraph();
+            for (var x = 0; x < 100; x++)
+                graph.Add(new Vertex());
+            var vertices = graph.Vertices.ToList();
+            var rand = new Random((int) DateTime.Now.Ticks);
+            for (var x = 0; x < 1000; x++)
+            {
+                var vertex1 = vertices[rand.Next(0, 99)];
+                var vertex2 = vertices[rand.Next(0, 99)];
+                if (vertex1 == vertex2 || vertex1.HasNeighbor(vertex2))
+                    continue;
+                var edge = graph.Connect(vertex1, vertex2);
+                edge.Weight = rand.Next(1, 5);
+            }
 
-            var path = _graph.ShortestPath(_graph.Grid[0, 0], _graph.Grid[0, 4]).Select(x => _graph.GetCoordinates(x)).ToList();
+            var source = vertices[rand.Next(0, 99)];
+            var destination = vertices[rand.Next(0, 99)];
+            var path = graph.ShortestPath(source, destination);
+        }
+
+        [Test]
+        public void SquareGraphPathTesting()
+        {
+            var graph = new SquareGraph(5, 5, true, true);
+            graph.Initialize();
+
+            Assert.IsTrue(graph.Grid[0, 0].HasNeighbor(graph.Grid[1, 0]));
+            Assert.IsTrue(graph.Grid[0, 0].HasNeighbor(graph.Grid[0, 1]));
+            Assert.IsTrue(graph.Grid[0, 0].HasNeighbor(graph.Grid[1, 1]));
+            Assert.IsTrue(graph.Grid[0, 0].HasNeighbor(graph.Grid[0, 4]));
+
+            var path = graph.ShortestPath(graph.Grid[0, 0], graph.Grid[0, 4]).Select(x => graph.GetCoordinates(x)).ToList();
             Assert.IsTrue(path.Count == 2);
 
             //Assert.IsTrue(_graph.Grid[0, 0].HasNeighbor(_graph.Grid[1, 0]));
@@ -36,8 +58,11 @@ namespace UnitTests
         }
 
         [Test]
-        public void LargeGridTiming()
+        public void LargeSquareGridTiming()
         {
+            var graph = new SquareGraph(5, 5, true, true);
+            graph.Initialize();
+
             var stopwatch = Stopwatch.StartNew();
             stopwatch.Start();
 

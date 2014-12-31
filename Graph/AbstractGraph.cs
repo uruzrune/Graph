@@ -35,18 +35,20 @@ namespace Graph
             Vertices.Remove(vertex);
         }
 
-        public void Connect(Vertex left, Vertex right, bool errorIfConnected = true)
+        public Edge Connect(Vertex left, Vertex right, bool errorIfConnected = true)
         {
             if (left.HasNeighbor(right) || right.HasNeighbor(left))
             {
                 if (errorIfConnected)
                     throw new InvalidOperationException("vertices are already connected");
-                return;
+                return null;
             }
             if (!Vertices.Contains(left) || !Vertices.Contains(right))
                 throw new InvalidOperationException("vertex is not in graph");
 
-            Edges.Add(new Edge(left, right));
+            var edge = new Edge(left, right);
+            Edges.Add(edge);
+            return edge;
         }
 
         public void Disconnect(Vertex vertex)

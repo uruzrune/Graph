@@ -7,6 +7,7 @@ namespace Graph
     public class Vertex
     {
         public HashSet<Edge> Edges { get; private set; }
+        public IVertexValue Value { get; set; }
 
         public IEnumerable<Vertex> Neighbors
         {
