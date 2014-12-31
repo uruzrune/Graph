@@ -46,7 +46,7 @@ namespace Graph
                             ? distances[workingVertex] + edge.Weight
                             : Int32.MaxValue;
 
-                    if (newDistance < distances[neighbor])
+                    if (newDistance < distances[neighbor] && neighbor.Value.IsEnterableFrom(workingVertex.Value))
                     {
                         distances[neighbor] = newDistance;
                         if (!queue.Contains(neighbor))
@@ -56,6 +56,26 @@ namespace Graph
                 }
             }
             return null;
+        }
+    }
+
+    public class SimpleGraphVertexValue : IVertexValue
+    {
+        private readonly int _value;
+
+        public SimpleGraphVertexValue(int value)
+        {
+            _value = value;
+        }
+
+        public bool IsEnterableFrom(IVertexValue source)
+        {
+            return true;
+        }
+
+        public override string ToString()
+        {
+            return Convert.ToString(_value);
         }
     }
 }

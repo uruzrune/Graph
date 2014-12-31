@@ -20,7 +20,7 @@ namespace UnitTests
             var graph = new SimpleGraph();
             for (var i = 0; i < 10; i++)
             {
-                graph.Add(new Vertex(graph));
+                graph.Add(new Vertex(graph, new SimpleGraphVertexValue(i)));
             }
             var verticesList = graph.Vertices.ToList();
             for (var i = 0; i < graph.Vertices.Count - 1; i++)
@@ -57,9 +57,6 @@ namespace UnitTests
         [Test]
         public void LargeSquareGridTiming()
         {
-            var graph = new SquareGraph(5, 5, true, true);
-            graph.Initialize();
-
             var stopwatch = Stopwatch.StartNew();
             stopwatch.Start();
 
@@ -72,11 +69,11 @@ namespace UnitTests
             var rand = new Random((int) DateTime.Now.Ticks);
             for (var i = 0; i < 10000; i++)
             {
-                var x = rand.Next(0, 125);
-                var y = rand.Next(0, 125);
+                var x = rand.Next(0, 249);
+                var y = rand.Next(0, 249);
 
                 var vertex = largeGrid.Grid[y, x];
-                if (vertex.IsIsolated() || (x == 125 && y == 125))
+                if (vertex.IsIsolated() || (x == 249 && y == 249))
                     continue;
 
                 largeGrid.Disconnect(vertex);
@@ -89,7 +86,7 @@ namespace UnitTests
                 ? path.Select(largeGrid.GetCoordinates).ToList()
                 : new List<Tuple<int, int>>();
             stopwatch.Stop();
-            Console.WriteLine("Big graph shortest path 0,0 - 125,125 (ms): " + stopwatch.ElapsedMilliseconds);
+            Console.WriteLine("Big graph shortest path 0,0 - 249,249 (ms): " + stopwatch.ElapsedMilliseconds);
             if (coordinates.Any())
                 coordinates.ForEach(x => Console.WriteLine("  " + x.ToString()));
             else

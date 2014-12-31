@@ -31,12 +31,18 @@ namespace Graph
         public AbstractGraph Graph { get; internal set; }
 
         /// <summary>
+        /// The value that corresponds with the vertex. 
+        /// </summary>
+        public IVertexValue Value { get; set; }
+
+        /// <summary>
         /// A vertex of a graph.
         /// </summary>
-        public Vertex(AbstractGraph graph)
+        public Vertex(AbstractGraph graph, IVertexValue value)
         {
             Edges = new HashSet<Edge>();
             Graph = graph;
+            Value = value;
         }
 
         /// <summary>
@@ -110,12 +116,9 @@ namespace Graph
                 throw new InvalidOperationException("vertex is already disconnected");
 
             var edges = new List<Edge>(Edges);
-            edges.ForEach(x =>
-            {
-                x.Clear();
-                Graph.Edges.RemoveWhere(y => y == x);
-            });
+            edges.ForEach(x => x.Clear());
             Edges.Clear();
+            edges.ForEach(x => Edges.Remove(x));
         }
     }
 }

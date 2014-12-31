@@ -63,7 +63,7 @@ namespace Graph
             {
                 for (var x = 0; x < Width; x++)
                 {
-                    var vertex = new Vertex(this);
+                    var vertex = new Vertex(this, new SquareGraphVertexValue(new Tuple<int, int>(y, x)));
                     Grid[y, x] = vertex;
                     Add(vertex);
                     _tupleDictionary.Add(Grid[y,x], new Tuple<int, int>(y, x));
@@ -154,14 +154,15 @@ namespace Graph
                 element = open.Dequeue();
                 closed.Add(element.Value);
 
-                if (element.Value.Neighbors.Any(x => !closed.Contains(x)))
+                var vertex = element.Value;
+                if (vertex.Neighbors.Any(x => !closed.Contains(x)))
                 {
-                    foreach (var neighbor in element.Value.Neighbors.Where(x => !closed.Contains(x)))
+                    foreach (var neighbor in vertex.Neighbors.Where(x => !closed.Contains(x) && x.Value.IsEnterableFrom(vertex.Value)))
                     {
                         var gScore = element.Key + ManhattanDistance(source, neighbor);
                         if (open.All(x => x.Value != neighbor) || open.First(x => x.Value == neighbor).Key < gScore)
                         {
-                            CameFrom(neighbor, element.Value);
+                            CameFrom(neighbor, vertex);
                             var fScore = gScore + ManhattanDistance(neighbor, destination);
                             if (open.Any(x => x.Value == neighbor))
                                 open.Remove(open.First(x => x.Value == neighbor));
@@ -169,7 +170,7 @@ namespace Graph
                         }
                     }
                 }
-                closed.Add(element.Value);
+                closed.Add(vertex);
             }
 
             return null;
@@ -217,6 +218,26 @@ namespace Graph
             reversePath.Reverse();
 
             return reversePath;
+        }
+    }
+
+    public class SquareGraphVertexValue : IVertexValue
+    {
+        private readonly Tuple<int, int> _tuple;
+
+        public SquareGraphVertexValue(Tuple<int, int> value)
+        {
+            _tuple = value;
+        }
+
+        public override string ToString()
+        {
+            return _tuple.ToString();
+        }
+
+        public bool IsEnterableFrom(IVertexValue source)
+        {
+            return true;
         }
     }
 }
