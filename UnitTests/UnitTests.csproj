@@ -53,6 +53,10 @@
       <Project>{D75E2EF2-169D-45BC-A3A6-0447A450C651}</Project>
       <Name>Graph</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{b8b4574d-612a-4d13-9853-134737ea4575}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

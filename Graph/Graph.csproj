@@ -47,6 +47,9 @@
   <ItemGroup>
     <Compile Include="AbstractGraph.cs" />
     <Compile Include="Edge.cs" />
+    <Compile Include="Direction.cs" />
+    <Compile Include="HexGraph.cs" />
+    <Compile Include="HexOrientation.cs" />
     <Compile Include="IVertexValue.cs" />
     <Compile Include="PriorityQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -56,6 +59,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{B8B4574D-612A-4D13-9853-134737EA4575}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

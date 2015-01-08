@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Graph;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace UnitTests
 {
@@ -91,6 +92,22 @@ namespace UnitTests
                 coordinates.ForEach(x => Console.WriteLine("  " + x.ToString()));
             else
                 Console.WriteLine("No path.");
+        }
+
+        [Test]
+        public void BasicHexGridTests()
+        {
+            var grid = new HexGraph(25, 25);
+            grid.Initialize();
+
+            foreach (var vertex in grid.Vertices)
+            {
+                Console.WriteLine(grid.GetCoordinates(vertex));
+                foreach (var edge in vertex.Edges)
+                {
+                    Console.WriteLine("  -> " + grid.GetCoordinates(edge.Vertices.First(x => x != vertex)));
+                }
+            }
         }
     }
 }

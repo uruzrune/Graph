@@ -29,7 +29,7 @@ namespace Graph
         /// </summary>
         public bool UseDiagonals { get; private set; }
 
-        private readonly Dictionary<Vertex, Tuple<int, int>> _tupleDictionary = new Dictionary<Vertex, Tuple<int, int>>();
+        internal readonly Dictionary<Vertex, Tuple<int, int>> TupleDictionary = new Dictionary<Vertex, Tuple<int, int>>();
         private Dictionary<Vertex, Vertex> _cameFromDictionary; 
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Graph
                     var vertex = new Vertex(this, new SquareGraphVertexValue(new Tuple<int, int>(y, x)));
                     Grid[y, x] = vertex;
                     Add(vertex);
-                    _tupleDictionary.Add(Grid[y,x], new Tuple<int, int>(y, x));
+                    TupleDictionary.Add(Grid[y,x], new Tuple<int, int>(y, x));
                 }
             }
 
@@ -196,7 +196,7 @@ namespace Graph
             if (!Vertices.Contains(vertex))
                 throw new InvalidOperationException("Vertex is not contained in graph.");
 
-            return _tupleDictionary[vertex];
+            return TupleDictionary[vertex];
         }
 
         private void CameFrom(Vertex source, Vertex destination)
