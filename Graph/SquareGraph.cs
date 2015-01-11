@@ -268,5 +268,10 @@ namespace Graph
         {
             return true;
         }
+
+        public double EnteringCostModifier(IVertexValue source)
+        {
+            return 1.0;
+        }
     }
 }

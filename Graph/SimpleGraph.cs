@@ -73,6 +73,11 @@ namespace Graph
             return true;
         }
 
+        public double EnteringCostModifier(IVertexValue source)
+        {
+            return 1.0;
+        }
+
         public override string ToString()
         {
             return Convert.ToString(_value);
