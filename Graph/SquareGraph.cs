@@ -30,7 +30,12 @@ namespace Graph
         public bool UseDiagonals { get; private set; }
 
         internal readonly Dictionary<Vertex, Tuple<int, int>> TupleDictionary = new Dictionary<Vertex, Tuple<int, int>>();
-        private Dictionary<Vertex, Vertex> _cameFromDictionary; 
+        private Dictionary<Vertex, Vertex> _cameFromDictionary;
+
+        /// <summary>
+        /// The six directions that this graph honors.
+        /// </summary>
+        public List<Direction> Directions { get; internal set; }
 
         /// <summary>
         /// SquareGraph constructor.
@@ -52,6 +57,7 @@ namespace Graph
             Grid = new Vertex[Height, Width];
             WrapAround = wrapAround;
             UseDiagonals = useDiagonals;
+            Directions = GetDirections();
         }
 
         /// <summary>
@@ -218,6 +224,29 @@ namespace Graph
             reversePath.Reverse();
 
             return reversePath;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        protected List<Direction> GetDirections()
+        {
+            var directions = new List<Direction>
+            {
+                Direction.North,
+                Direction.East,
+                Direction.West,
+                Direction.South
+            };
+            if (UseDiagonals)
+            {
+                directions.Add(Direction.Northeast);
+                directions.Add(Direction.Southeast);
+                directions.Add(Direction.Northwest);
+                directions.Add(Direction.Southwest);
+            }
+            return directions;
         }
     }
 
