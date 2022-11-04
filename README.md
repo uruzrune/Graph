@@ -16,9 +16,14 @@ HexGraph is a graph bound to a grid with (y,x) coordinates in the form of either
 
 The value for a vertex must implement IVertexValue. This provides two helper methods for determining whether pathing can happen between two adjacent vertices. This is mainly a convention for using this library for games, so that there is a distinction between the underlying graph (which would represent terrain, which changes infrequently) and vegetation and structures (which change frequently). 
 
+Changelog
+---------
+2014: Original commit
+2022: Clean up and migrated to latest .NET Core.
+
 Copyright
 ---------
 
 Protected by the MIT License. http://opensource.org/licenses/MIT
 
-(c) 2014 Alexander J Skrabut.
+(c) 2014, 2022 Alexander J Skrabut.
