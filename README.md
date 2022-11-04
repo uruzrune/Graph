@@ -19,7 +19,9 @@ The value for a vertex must implement IVertexValue. This provides two helper met
 Changelog
 ---------
 2014: Original commit
-2022: Clean up and migrated to latest .NET Core.
+2022:
+- Clean up and migrated to latest .NET Core.
+- Test VSCode GitHub sync.
 
 Copyright
 ---------
