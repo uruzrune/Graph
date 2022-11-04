@@ -1,36 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using Graph.Utilities;
 
-namespace Graph
+namespace Graph.Model
 {
     public class SquareGraph : AbstractGraph
     {
         /// <summary>
         /// The two-dimensional grid that sits on top of the more abstract graph.
         /// </summary>
-        public Vertex[,] Grid { get; private set; }
+        public Vertex[,] Grid { get; }
 
         /// <summary>
         /// Height of the graph. The 'y' value.
         /// </summary>
-        public int Width { get; private set; }
+        public int Width { get; }
         /// <summary>
         /// Width of the graph. The 'x' value.
         /// </summary>
-        public int Height { get; private set; }
+        public int Height { get; }
 
         /// <summary>
         /// Does the graph wrap around from left to right?
         /// </summary>
-        public bool WrapAround { get; private set; }
+        public bool WrapAround { get; }
         /// <summary>
         /// Does the graph permit traversal in a diagonal direction?
         /// </summary>
-        public bool UseDiagonals { get; private set; }
+        public bool UseDiagonals { get; }
 
-        internal readonly Dictionary<Vertex, Tuple<int, int>> TupleDictionary = new Dictionary<Vertex, Tuple<int, int>>();
-        private Dictionary<Vertex, Vertex> _cameFromDictionary;
+        internal readonly Dictionary<Vertex, Tuple<int, int>> TupleDictionary = new();
+        private Dictionary<Vertex, Vertex> _cameFromDictionary = new();
 
         /// <summary>
         /// The six directions that this graph honors.
@@ -47,9 +45,14 @@ namespace Graph
         public SquareGraph(int width, int height, bool wrapAround = false, bool useDiagonals = false)
         {
             if (width < 1)
+            {
                 throw new InvalidOperationException("Width must be positive");
+            }
+
             if (height < 1)
+            {
                 throw new InvalidOperationException("Height must be positive");
+            }
 
             Width = width;
             Height = height;
@@ -99,36 +102,56 @@ namespace Graph
             Connect(Grid[0, 0], Grid[1, 0], false);
             Connect(Grid[0, 0], Grid[0, 1], false);
             if (UseDiagonals)
+            {
                 Connect(Grid[0, 0], Grid[1, 1], false);
+            }
+
             // bottom left
             Connect(Grid[Height - 1, 0], Grid[Height - 2, 0], false);
             Connect(Grid[Height - 1, 0], Grid[Height - 1, 1], false);
             if (UseDiagonals)
+            {
                 Connect(Grid[Height - 1, 0], Grid[Height - 2, 1], false);
+            }
+
             // top right
             Connect(Grid[0, Width - 1], Grid[0, Width - 2], false);
             Connect(Grid[0, Width - 1], Grid[1, Width - 1], false);
             if (UseDiagonals)
+            {
                 Connect(Grid[0, Width - 1], Grid[1, Width - 2], false);
+            }
+
             // bottom right
             Connect(Grid[Height - 1, Width - 1], Grid[Height - 2, Width - 1], false);
             Connect(Grid[Height - 1, Width - 1], Grid[Height - 1, Width - 2], false);
             if (UseDiagonals)
+            {
                 Connect(Grid[Height - 1, Width - 1], Grid[Height - 2, Width - 2], false);
+            }
 
-            if (!WrapAround) 
+            if (!WrapAround)
+            {
                 return;
+            }
 
             for (var y = 0; y < Height; y++)
             {
                 Connect(Grid[y, 0], Grid[y, Width - 1], false);
-                if (!UseDiagonals) 
+                if (!UseDiagonals)
+                {
                     continue;
+                }
 
                 if (y > 0)
+                {
                     Connect(Grid[y, 0], Grid[y - 1, Width - 1], false);
+                }
+
                 if (y < Height - 1)
+                {
                     Connect(Grid[y, 0], Grid[y + 1, Width - 1], false);
+                }
             }
         }
 
@@ -138,24 +161,31 @@ namespace Graph
         /// <param name="source">The point where the search should begin.</param>
         /// <param name="destination">The desired endpoint of the search.</param>
         /// <returns>Returns a list of vertices that make the shortest path from the source to destination, or null if no path can be found.</returns>
-        public override List<Vertex> ShortestPath(Vertex source, Vertex destination)
+        public override List<Vertex>? ShortestPath(Vertex source, Vertex destination)
         {
             if (!Vertices.Contains(source))
-                throw new ArgumentException("vertex not contained in graph", "source");
-            if (!Vertices.Contains(destination))
-                throw new ArgumentException("vertex not contained in graph", "destination");
+            {
+                throw new ArgumentException("vertex not contained in graph", nameof(source));
+            }
 
-            var open = new PriorityQueue<double, Vertex>();
+            if (!Vertices.Contains(destination))
+            {
+                throw new ArgumentException("vertex not contained in graph", nameof(destination));
+            }
+
+            var open = new Utilities.PriorityQueue<double, Vertex>();
             open.Enqueue(0, source);
             var closed = new HashSet<Vertex>();
 
             _cameFromDictionary = new Dictionary<Vertex, Vertex>();
 
-            while (open.Any())
+            while (open.Count > 0)
             {
                 var element = open.Peek();
                 if (element.Value == destination)
+                {
                     return ReconstructPath(destination);
+                }
 
                 element = open.Dequeue();
                 closed.Add(element.Value);
@@ -171,11 +201,15 @@ namespace Graph
                             CameFrom(neighbor, vertex);
                             var fScore = gScore + ManhattanDistance(neighbor, destination);
                             if (open.Any(x => x.Value == neighbor))
+                            {
                                 open.Remove(open.First(x => x.Value == neighbor));
+                            }
+
                             open.Enqueue(fScore, neighbor);
                         }
                     }
                 }
+
                 closed.Add(vertex);
             }
 
@@ -188,8 +222,8 @@ namespace Graph
             var targetCoordinates = GetCoordinates(target);
 
             return 0.01 *
-                Math.Abs(sourceCoordinates.Item1 * targetCoordinates.Item2 -
-                         targetCoordinates.Item1 * sourceCoordinates.Item2);
+                Math.Abs((sourceCoordinates.Item1 * targetCoordinates.Item2) -
+                         (targetCoordinates.Item1 * sourceCoordinates.Item2));
         }
 
         /// <summary>
@@ -200,7 +234,9 @@ namespace Graph
         public Tuple<int, int> GetCoordinates(Vertex vertex)
         {
             if (!Vertices.Contains(vertex))
+            {
                 throw new InvalidOperationException("Vertex is not contained in graph.");
+            }
 
             return TupleDictionary[vertex];
         }
@@ -208,7 +244,10 @@ namespace Graph
         private void CameFrom(Vertex source, Vertex destination)
         {
             if (_cameFromDictionary.ContainsKey(source))
+            {
                 _cameFromDictionary.Remove(source);
+            }
+
             _cameFromDictionary.Add(source, destination);
         }
 
@@ -220,16 +259,13 @@ namespace Graph
                 current = _cameFromDictionary[current];
                 path.Add(current);
             }
+
             var reversePath = new List<Vertex>(path);
             reversePath.Reverse();
 
             return reversePath;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         protected List<Direction> GetDirections()
         {
             var directions = new List<Direction>
@@ -239,6 +275,7 @@ namespace Graph
                 Direction.West,
                 Direction.South
             };
+
             if (UseDiagonals)
             {
                 directions.Add(Direction.Northeast);
@@ -246,6 +283,7 @@ namespace Graph
                 directions.Add(Direction.Northwest);
                 directions.Add(Direction.Southwest);
             }
+
             return directions;
         }
     }

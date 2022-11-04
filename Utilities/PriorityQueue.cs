@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This code implements priority queue which uses min-heap as underlying storage
  * 
  * Copyright (C) 2010 Alexey Kurakin
@@ -9,11 +9,9 @@
 // http://www.codeproject.com/Articles/126751/Priority-queue-in-C-with-the-help-of-heap-data-str
 // Used via The Code Project Open License (CPOL) 1.02
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 
-namespace Graph
+namespace Graph.Utilities
 {
     /// <summary>
     /// Priority queue based on binary heap,
@@ -52,11 +50,8 @@ namespace Graph
         /// <param name="comparer">priority comparer</param>
         public PriorityQueue(int capacity, IComparer<TPriority> comparer)
         {
-            if (comparer == null)
-                throw new ArgumentNullException();
-
             _baseHeap = new List<KeyValuePair<TPriority, TValue>>(capacity);
-            _comparer = comparer;
+            _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer), "Priority comparer cannot be null!");
         }
 
         /// <summary>
@@ -65,11 +60,8 @@ namespace Graph
         /// <param name="comparer">priority comparer</param>
         public PriorityQueue(IComparer<TPriority> comparer)
         {
-            if (comparer == null)
-                throw new ArgumentNullException();
-
             _baseHeap = new List<KeyValuePair<TPriority, TValue>>();
-            _comparer = comparer;
+            _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer), "Priority comparer cannot be null!");
         }
 
         /// <summary>
@@ -88,14 +80,19 @@ namespace Graph
         /// <param name="comparer">priority comparer</param>
         public PriorityQueue(IEnumerable<KeyValuePair<TPriority, TValue>> data, IComparer<TPriority> comparer)
         {
-            if (data == null || comparer == null)
-                throw new ArgumentNullException();
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data), "Data cannot be null!");
+            }
 
-            _comparer = comparer;
+            _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer), "Comparer cannot be null!");
             _baseHeap = new List<KeyValuePair<TPriority, TValue>>(data);
+
             // heapify data
-            for (int pos = _baseHeap.Count / 2 - 1; pos >= 0; pos--)
+            for (int pos = (_baseHeap.Count / 2) - 1; pos >= 0; pos--)
+            {
                 HeapifyFromBeginningToEnd(pos);
+            }
         }
 
         #endregion
@@ -114,10 +111,21 @@ namespace Graph
         /// </remarks>
         public static PriorityQueue<TPriority, TValue> MergeQueues(PriorityQueue<TPriority, TValue> pq1, PriorityQueue<TPriority, TValue> pq2)
         {
-            if (pq1 == null || pq2 == null)
-                throw new ArgumentNullException();
+            if (pq1 == null)
+            {
+                throw new ArgumentNullException(nameof(pq1), "Queue parameter cannot be null!");
+            }
+
+            if (pq2 == null)
+            {
+                throw new ArgumentNullException(nameof(pq2), "Queue parameter cannot be null!");
+            }
+
             if (!Equals(pq1._comparer, pq2._comparer))
+            {
                 throw new InvalidOperationException("Priority queues to be merged must have equal comparers");
+            }
+
             return MergeQueues(pq1, pq2, pq1._comparer);
         }
 
@@ -130,15 +138,31 @@ namespace Graph
         /// <returns>resultant priority queue</returns>
         public static PriorityQueue<TPriority, TValue> MergeQueues(PriorityQueue<TPriority, TValue> pq1, PriorityQueue<TPriority, TValue> pq2, IComparer<TPriority> comparer)
         {
-            if (pq1 == null || pq2 == null || comparer == null)
-                throw new ArgumentNullException();
+            if (pq1 == null)
+            {
+                throw new ArgumentNullException(nameof(pq1), "Queue parameter cannot be null!");
+            }
+
+            if (pq2 == null)
+            {
+                throw new ArgumentNullException(nameof(pq2), "Queue parameter cannot be null!");
+            }
+
+            if (comparer == null)
+            {
+                throw new ArgumentNullException(nameof(comparer), "Comparer parameter cannot be null!");
+            }
+
             // merge data
             var result = new PriorityQueue<TPriority, TValue>(pq1.Count + pq2.Count, pq1._comparer);
             result._baseHeap.AddRange(pq1._baseHeap);
             result._baseHeap.AddRange(pq2._baseHeap);
+
             // heapify data
-            for (int pos = result._baseHeap.Count / 2 - 1; pos >= 0; pos--)
+            for (int pos = (result._baseHeap.Count / 2) - 1; pos >= 0; pos--)
+            {
                 result.HeapifyFromBeginningToEnd(pos);
+            }
 
             return result;
         }
@@ -158,7 +182,7 @@ namespace Graph
         }
 
         /// <summary>
-        /// Dequeues element with minimum priority and return its priority and value as <see cref="KeyValuePair{TPriority,TValue}"/> 
+        /// Dequeues element with minimum priority and return its priority and value as <see cref="KeyValuePair{TPriority,TValue}"/>
         /// </summary>
         /// <returns>priority and value of the dequeued element</returns>
         /// <remarks>
@@ -168,8 +192,9 @@ namespace Graph
         {
             if (!IsEmpty)
             {
-                KeyValuePair<TPriority, TValue> result = _baseHeap[0];
+                var result = _baseHeap[0];
                 DeleteRoot();
+
                 return result;
             }
 
@@ -198,7 +223,9 @@ namespace Graph
         public KeyValuePair<TPriority, TValue> Peek()
         {
             if (!IsEmpty)
+            {
                 return _baseHeap[0];
+            }
 
             throw new InvalidOperationException("Priority queue is empty");
         }
@@ -229,9 +256,7 @@ namespace Graph
 
         private void ExchangeElements(int pos1, int pos2)
         {
-            KeyValuePair<TPriority, TValue> val = _baseHeap[pos1];
-            _baseHeap[pos1] = _baseHeap[pos2];
-            _baseHeap[pos2] = val;
+            (_baseHeap[pos2], _baseHeap[pos1]) = (_baseHeap[pos1], _baseHeap[pos2]);
         }
 
         private void Insert(TPriority priority, TValue value)
@@ -245,7 +270,6 @@ namespace Graph
             HeapifyFromEndToBeginning(_baseHeap.Count - 1);
         }
 
-
         private int HeapifyFromEndToBeginning(int pos)
         {
             if (pos >= _baseHeap.Count) return -1;
@@ -258,11 +282,14 @@ namespace Graph
                     ExchangeElements(parentPos, pos);
                     pos = parentPos;
                 }
-                else break;
+                else
+                {
+                    break;
+                }
             }
+
             return pos;
         }
-
 
         private void DeleteRoot()
         {
@@ -272,7 +299,7 @@ namespace Graph
                 return;
             }
 
-            _baseHeap[0] = _baseHeap[_baseHeap.Count - 1];
+            _baseHeap[0] = _baseHeap[^1]; // _baseHeap.Count - 1
             _baseHeap.RemoveAt(_baseHeap.Count - 1);
 
             // heapify
@@ -289,19 +316,28 @@ namespace Graph
             {
                 // on each iteration exchange element with its smallest child
                 int smallest = pos;
-                int left = 2 * pos + 1;
-                int right = 2 * pos + 2;
+                int left = (2 * pos) + 1;
+                int right = (2 * pos) + 2;
+
                 if (left < _baseHeap.Count && _comparer.Compare(_baseHeap[smallest].Key, _baseHeap[left].Key) > 0)
+                {
                     smallest = left;
+                }
+
                 if (right < _baseHeap.Count && _comparer.Compare(_baseHeap[smallest].Key, _baseHeap[right].Key) > 0)
+                {
                     smallest = right;
+                }
 
                 if (smallest != pos)
                 {
                     ExchangeElements(smallest, pos);
                     pos = smallest;
                 }
-                else break;
+                else
+                {
+                    break;
+                }
             }
         }
 
@@ -345,7 +381,7 @@ namespace Graph
         }
 
         /// <summary>
-        /// Copies the elements of the priority queue to an Array, starting at a particular Array index. 
+        /// Copies the elements of the priority queue to an Array, starting at a particular Array index.
         /// </summary>
         /// <param name="array">The one-dimensional Array that is the destination of the elements copied from the priority queue. The Array must have zero-based indexing. </param>
         /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
@@ -358,7 +394,7 @@ namespace Graph
         }
 
         /// <summary>
-        /// Gets a value indicating whether the collection is read-only. 
+        /// Gets a value indicating whether the collection is read-only.
         /// </summary>
         /// <remarks>
         /// For priority queue this property returns <c>false</c>.
@@ -369,7 +405,7 @@ namespace Graph
         }
 
         /// <summary>
-        /// Removes the first occurrence of a specific object from the priority queue. 
+        /// Removes the first occurrence of a specific object from the priority queue.
         /// </summary>
         /// <param name="item">The object to remove from the ICollection <(Of<(T>)>). </param>
         /// <returns><c>true</c> if item was successfully removed from the priority queue.
@@ -378,16 +414,21 @@ namespace Graph
         {
             // find element in the collection and remove it
             int elementIdx = _baseHeap.IndexOf(item);
-            if (elementIdx < 0) return false;
+            if (elementIdx < 0)
+            {
+                return false;
+            }
 
             //remove element
-            _baseHeap[elementIdx] = _baseHeap[_baseHeap.Count - 1];
+            _baseHeap[elementIdx] = _baseHeap[^1]; // _baseHeap.Count - 1
             _baseHeap.RemoveAt(_baseHeap.Count - 1);
 
             // heapify
             int newPos = HeapifyFromEndToBeginning(elementIdx);
             if (newPos == elementIdx)
+            {
                 HeapifyFromBeginningToEnd(elementIdx);
+            }
 
             return true;
         }

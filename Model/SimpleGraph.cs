@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Graph
+namespace Graph.Model
 {
     public class SimpleGraph : AbstractGraph
     {
@@ -16,28 +12,35 @@ namespace Graph
         /// <param name="source">The point where the search should begin.</param>
         /// <param name="destination">The desired endpoint of the search.</param>
         /// <returns>Returns a list of vertices that make the shortest path from the source to destination, or null if no path can be found.</returns>
-        public override List<Vertex> ShortestPath(Vertex source, Vertex destination)
+        public override List<Vertex>? ShortestPath(Vertex source, Vertex destination)
         {
-            var distances = Vertices.Where(x => x != source).ToDictionary(vertex => vertex, vertex => Int32.MaxValue);
+            var distances = Vertices.Where(x => x != source).ToDictionary(vertex => vertex, _ => Int32.MaxValue);
             distances.Add(source, 0);
+
             var previous = new Dictionary<Vertex, Vertex>();
+
             var queue = new Queue<Vertex>();
             queue.Enqueue(source);
-            while (queue.Any())
+
+            while (queue.Count > 0)
             {
                 var workingVertex = queue.Dequeue();
                 if (workingVertex == destination)
                 {
                     var currentVertex = destination;
                     var resultList = new List<Vertex>();
+
                     while (currentVertex != null)
                     {
                         resultList.Add(currentVertex);
                         currentVertex = previous.ContainsKey(currentVertex) ? previous[currentVertex] : null;
                     }
+
                     resultList.Reverse();
+
                     return resultList;
                 }
+
                 foreach (var edge in workingVertex.Edges)
                 {
                     var neighbor = edge.Vertices.First(x => x != workingVertex);
@@ -55,6 +58,7 @@ namespace Graph
                     }
                 }
             }
+
             return null;
         }
     }

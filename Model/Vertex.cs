@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Graph
+namespace Graph.Model
 {
     /// <summary>
     /// A vertex.
@@ -12,7 +8,7 @@ namespace Graph
         /// <summary>
         /// The set of edges leading to adjacent vertices.
         /// </summary>
-        public HashSet<Edge> Edges { get; private set; }
+        public HashSet<Edge> Edges { get; }
 
         /// <summary>
         /// An enumerable of neighbors to this vertex.
@@ -31,7 +27,7 @@ namespace Graph
         public AbstractGraph Graph { get; internal set; }
 
         /// <summary>
-        /// The value that corresponds with the vertex. 
+        /// The value that corresponds with the vertex.
         /// </summary>
         public IVertexValue Value { get; set; }
 
@@ -73,10 +69,14 @@ namespace Graph
         public Edge Connect(Vertex newNeighbor)
         {
             if (HasNeighbor(newNeighbor))
+            {
                 throw new InvalidOperationException("already neighbors");
+            }
+
             var edge = new Edge(this, newNeighbor);
             Edges.Add(edge);
             Graph.Edges.Add(edge);
+
             return edge;
         }
 
@@ -86,7 +86,7 @@ namespace Graph
         /// <returns>The number of edges that this vertex has connecting to adjacent vertices.</returns>
         public int Degrees()
         {
-            return Edges.Count();
+            return Edges.Count;
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Graph
         /// <returns>True if the vertex is isolated, false if it has at least one neighbor.</returns>
         public bool IsIsolated()
         {
-            return !Edges.Any();
+            return Edges.Count == 0;
         }
 
         /// <summary>
@@ -113,7 +113,9 @@ namespace Graph
         public void Disconnect()
         {
             if (IsIsolated())
+            {
                 throw new InvalidOperationException("vertex is already disconnected");
+            }
 
             var edges = new List<Edge>(Edges);
             edges.ForEach(x => x.Clear());

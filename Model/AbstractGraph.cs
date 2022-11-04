@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Graph
+namespace Graph.Model
 {
     public abstract class AbstractGraph
     {
-        public HashSet<Vertex> Vertices { get; private set; }
-        public HashSet<Edge> Edges { get; private set; } 
+        public HashSet<Vertex> Vertices { get; }
+        public HashSet<Edge> Edges { get; }
 
         protected AbstractGraph()
         {
@@ -17,10 +13,15 @@ namespace Graph
 
         public void Add(Vertex vertex)
         {
-            if (vertex.Edges.Any())
+            if (vertex.Edges.Count > 0)
+            {
                 throw new InvalidOperationException("vertex is already connected to another vertex");
+            }
+
             if (Vertices.Contains(vertex))
+            {
                 throw new InvalidOperationException("vertex is already in graph");
+            }
 
             Vertices.Add(vertex);
         }
@@ -28,35 +29,52 @@ namespace Graph
         public void Remove(Vertex vertex)
         {
             if (!Vertices.Contains(vertex))
+            {
                 throw new InvalidOperationException("vertex not contained in graph");
+            }
+
             if (!vertex.IsIsolated())
+            {
                 throw new InvalidOperationException("vertex is connected; disconnect first");
+            }
 
             Vertices.Remove(vertex);
         }
 
-        public Edge Connect(Vertex left, Vertex right, bool errorIfConnected = true)
+        public Edge? Connect(Vertex left, Vertex right, bool errorIfConnected = true)
         {
             if (left.HasNeighbor(right) || right.HasNeighbor(left))
             {
                 if (errorIfConnected)
+                {
                     throw new InvalidOperationException("vertices are already connected");
+                }
+
                 return null;
             }
+
             if (!Vertices.Contains(left) || !Vertices.Contains(right))
+            {
                 throw new InvalidOperationException("vertex is not in graph");
+            }
 
             var edge = new Edge(left, right);
             Edges.Add(edge);
+
             return edge;
         }
 
         public void Disconnect(Vertex vertex)
         {
             if (!Vertices.Contains(vertex))
+            {
                 throw new InvalidOperationException("vertex is not in graph");
+            }
+
             if (vertex.IsIsolated())
+            {
                 throw new InvalidOperationException("vertex is isolated");
+            }
 
             var edges = new List<Edge>(vertex.Edges);
             vertex.Disconnect();
@@ -66,9 +84,14 @@ namespace Graph
         public void Disconnect(Vertex left, Vertex right)
         {
             if (!left.HasNeighbor(right) || !right.HasNeighbor(left))
+            {
                 throw new InvalidOperationException("vertices are not connected");
+            }
+
             if (!Vertices.Contains(left) || !Vertices.Contains(right))
+            {
                 throw new InvalidOperationException("vertex is not in graph");
+            }
 
             var edge = Edges.First(x => x.HasVertex(left) && x.HasVertex(right));
             Edges.Remove(edge);
@@ -77,6 +100,6 @@ namespace Graph
 
         public abstract void Initialize();
 
-        public abstract List<Vertex> ShortestPath(Vertex source, Vertex destination);
+        public abstract List<Vertex>? ShortestPath(Vertex source, Vertex destination);
     }
 }

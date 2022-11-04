@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Graph
+namespace Graph.Model
 {
     public class Edge
     {
         /// <summary>
         /// The vertices on either end of the edge.
         /// </summary>
-        public HashSet<Vertex> Vertices { get; private set; }
+        public HashSet<Vertex> Vertices { get; }
+
         /// <summary>
         /// The weight of the edge, i.e., the cost it takes to traverse.
         /// </summary>
@@ -43,7 +41,10 @@ namespace Graph
         public void Clear()
         {
             foreach (var vertex in Vertices.Where(x => x.Edges.Contains(this)))
+            {
                 vertex.Edges.Remove(this);
+            }
+
             Vertices.Clear();
         }
     }

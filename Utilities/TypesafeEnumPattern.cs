@@ -1,5 +1,4 @@
-﻿using System;
-namespace Utilities
+namespace Graph.Utilities
 {
     public class TypesafeEnumPattern : IEquatable<TypesafeEnumPattern>
     {
@@ -10,14 +9,24 @@ namespace Utilities
             Value = value;
         }
 
-        public bool Equals(TypesafeEnumPattern other)
-        {
-            return other != null && other.Value == Value;
-        }
-
         public override string ToString()
         {
             return Value;
+        }
+
+        public bool Equals(TypesafeEnumPattern? other)
+        {
+            return other != null && Value == other.Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as TypesafeEnumPattern);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
         }
     }
 }

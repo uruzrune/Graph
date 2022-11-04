@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Graph;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
+using Graph.Model;
+using System.Diagnostics;
 
-namespace UnitTests
+namespace Graph.Tests
 {
     class GridTests
     {
@@ -40,19 +36,16 @@ namespace UnitTests
         {
             var graph = new SquareGraph(5, 5, true, true);
             graph.Initialize();
+            Assert.Multiple(() =>
+            {
+                Assert.That(graph.Grid[0, 0].HasNeighbor(graph.Grid[1, 0]), Is.True);
+                Assert.That(graph.Grid[0, 0].HasNeighbor(graph.Grid[0, 1]), Is.True);
+                Assert.That(graph.Grid[0, 0].HasNeighbor(graph.Grid[1, 1]), Is.True);
+                Assert.That(graph.Grid[0, 0].HasNeighbor(graph.Grid[0, 4]), Is.True);
+            });
 
-            Assert.IsTrue(graph.Grid[0, 0].HasNeighbor(graph.Grid[1, 0]));
-            Assert.IsTrue(graph.Grid[0, 0].HasNeighbor(graph.Grid[0, 1]));
-            Assert.IsTrue(graph.Grid[0, 0].HasNeighbor(graph.Grid[1, 1]));
-            Assert.IsTrue(graph.Grid[0, 0].HasNeighbor(graph.Grid[0, 4]));
-
-            var path = graph.ShortestPath(graph.Grid[0, 0], graph.Grid[0, 4]).Select(x => graph.GetCoordinates(x)).ToList();
-            Assert.IsTrue(path.Count == 2);
-
-            //Assert.IsTrue(_graph.Grid[0, 0].HasNeighbor(_graph.Grid[1, 0]));
-            //Assert.IsTrue(_graph.Grid[0, 0].HasNeighbor(_graph.Grid[0, 1]));
-            //Assert.IsFalse(_graph.Grid[0, 0].HasNeighbor(_graph.Grid[1, 1]));
-            //Assert.IsTrue(_graph.Grid[0, 0].HasNeighbor(_graph.Grid[0, 4]));
+            var path = graph.ShortestPath(graph.Grid[0, 0], graph.Grid[0, 4])?.Select(x => graph.GetCoordinates(x)).ToList();
+            Assert.That(path?.Count, Is.EqualTo(2));
         }
 
         [Test]
@@ -75,7 +68,9 @@ namespace UnitTests
 
                 var vertex = largeGrid.Grid[y, x];
                 if (vertex.IsIsolated() || (x == 249 && y == 249))
+                {
                     continue;
+                }
 
                 largeGrid.Disconnect(vertex);
             }
@@ -84,14 +79,18 @@ namespace UnitTests
             stopwatch.Start();
             var path = largeGrid.ShortestPath(largeGrid.Grid[0, 0], largeGrid.Grid[249, 249]);
             var coordinates = path != null
-                ? path.Select(largeGrid.GetCoordinates).ToList()
+                ? path.ConvertAll(largeGrid.GetCoordinates)
                 : new List<Tuple<int, int>>();
             stopwatch.Stop();
             Console.WriteLine("Big graph shortest path 0,0 - 249,249 (ms): " + stopwatch.ElapsedMilliseconds);
-            if (coordinates.Any())
+            if (coordinates.Count > 0)
+            {
                 coordinates.ForEach(x => Console.WriteLine("  " + x.ToString()));
+            }
             else
+            {
                 Console.WriteLine("No path.");
+            }
         }
 
         [Test]

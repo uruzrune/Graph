@@ -1,4 +1,4 @@
-﻿namespace Graph
+namespace Graph
 {
     public interface IVertexValue
     {

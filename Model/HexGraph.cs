@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Graph
+namespace Graph.Model
 {
     public class HexGraph : SquareGraph
     {
         /// <summary>
         /// The orientation of the hexes in the graph (horizontal, vertical) and the ordering of the cells as it maps to the underlying square grid.
         /// </summary>
-        public HexOrientation Orientation { get; private set; }
+        public HexOrientation Orientation { get; }
 
         /// <summary>
         /// A set of transformations from one hex to another depending on orientation.
@@ -23,8 +19,8 @@ namespace Graph
         /// <param name="height">Height of the graph. The 'y' value.</param>
         /// <param name="orientation">The orientation of the graph -- see HexOrientation.</param>
         /// <param name="wrapAround">Does the graph wrap around from left to right? Default is false.</param>
-        public HexGraph(int width, int height, HexOrientation orientation = null, bool wrapAround = false)
-            : base(width, height, wrapAround, false)
+        public HexGraph(int width, int height, HexOrientation? orientation = null, bool wrapAround = false)
+            : base(width, height, wrapAround)
         {
             Orientation = orientation ?? HexOrientation.HorizontalOdd;
             Directions = GetDirections();
@@ -56,17 +52,25 @@ namespace Graph
                         var targetY = targetCoords.Item1;
                         var targetX = targetCoords.Item2;
 
-                        if (targetY < 0 || targetY >= Height)
+                        if (targetY < 0 ||
+                            targetY >= Height ||
+                            (!WrapAround && (targetX < 0 || targetX >= Width)))
+                        {
                             continue;
-                        if (!WrapAround && (targetX < 0 || targetX >= Width))
-                            continue;
+                        }
 
                         if (targetX < 0)
+                        {
                             Connect(Grid[y, x], Grid[targetY, Width - 1], false);
+                        }
                         else if (targetX >= Width)
+                        {
                             Connect(Grid[y, x], Grid[targetY, 0], false);
-                        else 
+                        }
+                        else
+                        {
                             Connect(Grid[y, x], Grid[targetY, targetX], false);
+                        }
                     }
                 }
             }
@@ -82,10 +86,13 @@ namespace Graph
         public Tuple<int, int> CalculateCoordinates(int y, int x, Direction direction)
         {
             if (x < 0 || y < 0 || x > Width - 1 || y > Height - 1)
+            {
                 throw new InvalidOperationException("coordinates located outside bounds of square graph");
+            }
 
             var transformation = Transformations.First(t => t.Key.Item1 == Orientation && t.Key.Item2 == (y%2 == 1)).Value;
             int index;
+
             if (Orientation == HexOrientation.HorizontalOdd || Orientation == HexOrientation.HorizontalEven)
             {
                 if (direction == Direction.Northeast)
@@ -120,14 +127,15 @@ namespace Graph
                 else
                     throw new InvalidOperationException("unknown direction for orientation");
             }
+
             var transformationValue = transformation[index];
+
             return new Tuple<int, int>(y + transformationValue.Item1, x + transformationValue.Item2);
         }
 
         /// <summary>
         /// Gets the list of directions for the current graph. (Six directions for a HexGraph)
         /// </summary>
-        /// <returns></returns>
         protected new List<Direction> GetDirections()
         {
             var directions = new List<Direction>
@@ -137,6 +145,7 @@ namespace Graph
                 Direction.Northwest,
                 Direction.Southwest
             };
+
             if (Orientation == HexOrientation.HorizontalOdd || Orientation == HexOrientation.HorizontalEven)
             {
                 directions.Add(Direction.East);
