@@ -51,23 +51,27 @@ namespace Graph.Tests
         [Test]
         public void LargeSquareGridTiming()
         {
+            const int width = 50;
+            const int height = 50;
+            const int numVerticesToIsolate = 1000;
+
             var stopwatch = Stopwatch.StartNew();
             stopwatch.Start();
 
-            var largeGrid = new SquareGraph(250, 250, false, true);
+            var largeGrid = new SquareGraph(width, height, false, true);
             largeGrid.Initialize();
 
             stopwatch.Stop();
             Console.WriteLine("Big graph (ms): " + stopwatch.Elapsed.Milliseconds);
 
             var rand = new Random((int) DateTime.Now.Ticks);
-            for (var i = 0; i < 10000; i++)
+            for (var i = 0; i < numVerticesToIsolate; i++)
             {
-                var x = rand.Next(0, 249);
-                var y = rand.Next(0, 249);
+                var x = rand.Next(0, width - 1);
+                var y = rand.Next(0, height - 1);
 
                 var vertex = largeGrid.Grid[y, x];
-                if (vertex.IsIsolated() || (x == 249 && y == 249))
+                if (vertex.IsIsolated() || (x == width - 1 && y == height - 1))
                 {
                     continue;
                 }
@@ -77,12 +81,12 @@ namespace Graph.Tests
 
             stopwatch.Reset();
             stopwatch.Start();
-            var path = largeGrid.ShortestPath(largeGrid.Grid[0, 0], largeGrid.Grid[249, 249]);
+            var path = largeGrid.ShortestPath(largeGrid.Grid[0, 0], largeGrid.Grid[width - 1, height - 1]);
             var coordinates = path != null
                 ? path.ConvertAll(largeGrid.GetCoordinates)
                 : new List<Tuple<int, int>>();
             stopwatch.Stop();
-            Console.WriteLine("Big graph shortest path 0,0 - 249,249 (ms): " + stopwatch.ElapsedMilliseconds);
+            Console.WriteLine($"Big graph shortest path 0,0 - {width - 1},{height - 1} (ms): " + stopwatch.ElapsedMilliseconds);
             if (coordinates.Count > 0)
             {
                 coordinates.ForEach(x => Console.WriteLine("  " + x.ToString()));
